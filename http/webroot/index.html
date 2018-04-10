@@ -1,14 +1,20 @@
 <html>
 <head>
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script src="http://cdn.static.runoob.com/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="loader.js"></script>
+    <script src="jquery.min.js"></script>
     <script type="text/javascript">
 
-        $(document).ready(function(){
-            $.get("/two",function(cd,status){
-//                alert("data: " + data + "\nstate: " + status);
-
-
+        let timeType = "halfMinute";
+        let updateTime = {};
+        updateTime["second"] = 10;
+        updateTime["halfMinute"] = 30;
+        updateTime["minute"] = 60;
+        updateTime["fiveMinute"] = 60 * 5;
+        updateTime["tenMinute"] = 60 * 10;
+        updateTime["halfHour"] = 60 * 30;
+        updateTime["hour"] = 60 * 60;
+        function update(){
+            $.get("/"+timeType,function(cd,status){
 
                 let chartData =JSON.parse(cd) ;
 
@@ -17,22 +23,38 @@
 
                 function drawChart() {
 
-//                    var button = document.getElementById('change-chart');
                     var chartDiv = document.getElementById('chart_div');
 
                     var data = new google.visualization.DataTable();
-                    data.addColumn('number', 'Time');
+                    data.addColumn('datetime', 'Time');
                     data.addColumn('number', "BTC");
+                    data.addColumn('number', "USD");
                     data.addColumn('number', "USDT");
 
                     var mydata=new Array()
-//                    mydata[0] = new Array();
-//                    mydata[0][0]=0;
-//                    mydata[0][1]=0;
-//                    mydata[0][2]=0;
+
+                    let temptime = 0;
                     let tempbtc = 0;
+                    let tempusd = 0;
                     let tempusdt = 0;
 
+
+                    for(let i = 0; i < chartData.length; i++){
+
+                        if(chartData[i].btc !=null){
+
+                            tempbtc=chartData[i].btc;
+                            break;
+                        }
+                    }
+                    for(let i = 0; i < chartData.length; i++){
+
+                        if(chartData[i].usd !=null){
+
+                            tempusd=chartData[i].usd;
+                            break;
+                        }
+                    }
                     for(let i = 0; i < chartData.length; i++){
 
                         if(chartData[i].usdt !=null){
@@ -41,21 +63,20 @@
                             break;
                         }
                     }
-                    for(let i = 0; i < chartData.length; i++){
 
-                        if(chartData[i].usdt !=null){
-
-                            tempbtc=chartData[i].btc;
-                            break;
-                        }
-                    }
 
                     for(let i = 0; i < chartData.length; i++){
 
                         mydata[i] = new Array();
 
 
-                        mydata[i][0]=chartData[i]._id;
+//                        if(chartData[i]._id <= temptime){
+//
+//                            continue;
+//
+//                        }
+//                        temptime = chartData[i]._id;
+                        mydata[i][0]= new Date(chartData[i]._id);
                         if(chartData[i].btc !=null){
 
                             mydata[i][1]=chartData[i].btc;
@@ -64,12 +85,20 @@
                             mydata[i][1]=tempbtc;
 
                         }
+
+                        if(chartData[i].usd !=null){
+
+                            mydata[i][2]=chartData[i].usd;
+                            tempusd = mydata[i][2];
+                        }else {
+                            mydata[i][2] = tempusd;
+                        }
                         if(chartData[i].usdt !=null){
 
-                            mydata[i][2]=chartData[i].usdt;
-                            tempusdt = mydata[i][2];
+                            mydata[i][3]=chartData[i].usdt;
+                            tempusdt = mydata[i][3];
                         }else {
-                            mydata[i][2] = tempusdt;
+                            mydata[i][3] = tempusdt;
                         }
                     }
 
@@ -98,30 +127,23 @@
                     };
 
                     var classicOptions = {
-                        title: 'Average Temperatures and Daylight in Iceland Throughout the Year',
-                        width: 900,
-                        height: 500,
+                        title: timeType + " Mul Coin Chart",
+                        width: 1400,
+                        height: 800,
                         // Gives each series an axis that matches the vAxes number below.
                         series: {
                             0: {targetAxisIndex: 0},
-                            1: {targetAxisIndex: 1}
+                            1: {targetAxisIndex: 1},
+                            2: {targetAxisIndex: 1}
                         },
                         vAxes: {
                             // Adds titles to each axis.
-                            0: {title: 'Temps (Celsius)'},
-                            1: {title: 'Daylight'}
+                            0: {title: 'BTC'},
+                            1: {title: 'USD'},
+                            2: {title: 'USDT'}
                         },
-                        hAxis: {
-                            ticks: [new Date(2014, 0), new Date(2014, 1), new Date(2014, 2), new Date(2014, 3),
-                                new Date(2014, 4),  new Date(2014, 5), new Date(2014, 6), new Date(2014, 7),
-                                new Date(2014, 8), new Date(2014, 9), new Date(2014, 10), new Date(2014, 11)
-                            ]
-                        },
-                        vAxis: {
-                            viewWindow: {
-                                max: 30
-                            }
-                        }
+//                        curveType: 'function',
+//                        legend: { position: 'bottom' }
                     };
 
                     function drawMaterialChart() {
@@ -138,19 +160,34 @@
 //                        button.onclick = drawMaterialChart;
                     }
 
-                    drawMaterialChart();
+                    drawClassicChart();
 
                 }
-
-
+                setTimeout(update, 1000 * updateTime[timeType]);
             });
-
+        }
+        $(document).ready(function(){
+            document.getElementById('second').onclick = function () {timeType = "second"; update();};
+            document.getElementById('halfMinute').onclick = function () {timeType = "halfMinute"; update();};
+            document.getElementById('minute').onclick = function () {timeType = "minute"; update();};
+            document.getElementById('fiveMinute').onclick = function () {timeType = "fiveMinute"; update();};
+            document.getElementById('tenMinute').onclick = function () {timeType = "tenMinute"; update();};
+            document.getElementById('halfHour').onclick = function () {timeType = "halfHour"; update();};
+            document.getElementById('hour').onclick = function () {timeType = "hour"; update();};
+            update();
         });
-
 
     </script>
 </head>
 <body>
+<button id="second">second</button>
+<button id="halfMinute">halfMinute</button>
+<button id="minute">minute</button>
+<button id="fiveMinute">fiveMinute</button>
+<button id="tenMinute">tenMinute</button>
+<button id="halfHour">halfHour</button>
+<button id="hour">hour</button>
+
 <div id="chart_div" style="width: 900px; height: 500px"></div>
 </body>
 </html>

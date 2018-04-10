@@ -1,6 +1,6 @@
 function route (handle, pathname, response, data) {
     if(typeof handle[pathname] === 'function'){
-        handle[pathname](response, data);
+        handle[pathname](pathname, response, data);
         //根据pathname调用方法
     }
     else{    //不存在

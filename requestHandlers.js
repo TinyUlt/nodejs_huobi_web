@@ -32,10 +32,28 @@ function getContentType(filePath){
         return contentType.default;
     }
 }
-function one (response, data) {
+function one (pathName, response, data) {
     var hasExt = true;
+    // //获取资源文件的相对路径
+    // var filePath = path.join("http/webroot","index.html");
+    //如果路径中没有扩展名
+    if(path.extname(pathName) === ''){
+        //如果不是以/结尾的，加/并作301重定向
+        if (pathName.charAt(pathName.length-1) != "/"){
+            pathName += "/";
+            var redirect = "http://"+request.headers.host + pathName;
+            response.writeHead(301, {
+                location:redirect
+            });
+            response.end();
+            return ; //fix bug: 执行301重定向后应终止后续流程，以防 "write after end" 异常 （2017-4-21 23:11:37）
+        }
+        //添加默认的访问页面,但这个页面不一定存在,后面会处理
+        pathName += "index.html";
+        hasExt = false; //标记默认页面是程序自动添加的
+    }
     //获取资源文件的相对路径
-    var filePath = path.join("http/webroot","index.html");
+    var filePath = path.join("http/webroot",pathName);
 
     //获取对应文件的文档类型
     var contentType = getContentType(filePath);
@@ -107,19 +125,21 @@ function getDataValue(){
     return today.valueOf();
 }
 
-function find(response){
+function find(pathName, response){
 
-    dbase.collection("s_"+getDateString()). find({}).toArray(function(err, result) { // 返回集合中所有数据
+    var query = {};
+    dbase.collection("g"). find({[pathName]:1}).project({_id:1, btc:1, usd:1, usdt:1}).sort({_id:1}).toArray(function(err, result) { // 返回集合中所有数据
         if (err) throw err;
+
         console.log(result);
         response.writeHead(200, {"Content-Type": "text/plain"});
         response.write(JSON.stringify(result));
         response.end();
-
     });
 }
-function two (response, data) {
-    find(response);
+function getData (pathName, response, data) {
+    pathName = pathName.substring(1)
+    find(pathName, response);
     // var body = '<html>' +
     //     '<head>' +
     //     '<meta http-equiv-"Content-Type" content="text/html;charset=UTF-8"/>' +
@@ -134,4 +154,4 @@ function two (response, data) {
     // response.end();
 }
 exports.one = one;
-exports.two = two;
+exports.getData = getData;
