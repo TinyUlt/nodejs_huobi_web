@@ -32,7 +32,7 @@ function getContentType(filePath){
         return contentType.default;
     }
 }
-function one (pathName, response, data) {
+function one (pathName, data, response) {
     var hasExt = true;
     // //获取资源文件的相对路径
     // var filePath = path.join("http/webroot","index.html");
@@ -104,7 +104,7 @@ const Promise = require('bluebird');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 
-var url = 'mongodb://47.52.225.13:27017';
+var url = 'mongodb://root:TinyUlt920805@47.52.225.13:27017/huobi?authSource=admin';
 var dbase;
 MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
@@ -125,10 +125,12 @@ function getDataValue(){
     return today.valueOf();
 }
 
-function find(pathName, response){
+function find(pathName,data, response){
 
     var query = {};
-    dbase.collection("g"). find({[pathName]:1}).project({_id:1, btc:1, usd:1, usdt:1}).sort({_id:1}).toArray(function(err, result) { // 返回集合中所有数据
+    let startTime =parseInt(data.startTime);
+    let endTime =parseInt( data.endTime);
+    dbase.collection("g"). find({_id:{$gte:startTime,$lte:endTime}, [pathName]:1 }).project({_id:1, btc:1, usd:1, usdt:1,usdtbuy:1, btcamount:1}).sort({_id:1}).toArray(function(err, result) { // 返回集合中所有数据
         if (err) throw err;
 
         console.log(result);
@@ -137,9 +139,9 @@ function find(pathName, response){
         response.end();
     });
 }
-function getData (pathName, response, data) {
+function getData (pathName,data, response ) {
     pathName = pathName.substring(1)
-    find(pathName, response);
+    find(pathName,data, response);
     // var body = '<html>' +
     //     '<head>' +
     //     '<meta http-equiv-"Content-Type" content="text/html;charset=UTF-8"/>' +

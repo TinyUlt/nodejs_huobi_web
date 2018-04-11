@@ -49,6 +49,7 @@ module.exports = (function(){
             var requestUrl = request.url;
             var pathName = url.parse(requestUrl).pathname;
             var postData = url.parse(request.url, true).query;
+            console.log(postData)
             //对请求的路径进行解码，防止中文乱码
             pathName = decodeURI(pathName);
 
@@ -69,7 +70,7 @@ module.exports = (function(){
             //     hasExt = false; //标记默认页面是程序自动添加的
             // }
 
-            this.route(this.handle, pathName, response, postData);
+            this.route(this.handle, pathName, postData, response);
 
         },
 

@@ -1,10 +1,11 @@
+<!DOCTYPE html>
 <html>
 <head>
     <script src="loader.js"></script>
     <script src="jquery.min.js"></script>
     <script type="text/javascript">
 
-        let timeType = "halfMinute";
+        let timeType = "minute";
         let updateTime = {};
         updateTime["second"] = 10;
         updateTime["halfMinute"] = 30;
@@ -14,159 +15,123 @@
         updateTime["halfHour"] = 60 * 30;
         updateTime["hour"] = 60 * 60;
         function update(){
-            $.get("/"+timeType,function(cd,status){
+
+            let startTime =parseInt((new Date(document.getElementById("DateStart").value)).valueOf()) ;
+            let endTime = parseInt((new Date(document.getElementById("DateEnd").value)).valueOf());
+
+            let _get = `/${timeType}?startTime=${startTime}&endTime=${endTime}`;
+            console.log(_get);
+            $.get(_get,function(cd,status){
 
                 let chartData =JSON.parse(cd) ;
 
                 google.charts.load('current', {'packages':['line', 'corechart']});
-                google.charts.setOnLoadCallback(drawChart);
+                google.charts.setOnLoadCallback(drawTopChart);
+                google.charts.setOnLoadCallback(drawMidChart);
 
-                function drawChart() {
+                function drawTopChart(){
+                    drawChart(["btc","btcamount"],[0,1],'chart_top',1000, 300);
+                }
+                function drawMidChart(){
+                    drawChart(["usd","usdt","usdtbuy"],[0,1,1],'chart_mid',1000, 300 );
+                }
+                function drawChart(coinList,targetAxisIndex, elementId,chartWidth, chartHight) {
 
-                    var chartDiv = document.getElementById('chart_div');
+                    var chartDiv = document.getElementById(elementId);
 
                     var data = new google.visualization.DataTable();
                     data.addColumn('datetime', 'Time');
-                    data.addColumn('number', "BTC");
-                    data.addColumn('number', "USD");
-                    data.addColumn('number', "USDT");
+
+                    let temp = {};
+                    for(let i = 0; i < coinList.length; i++){
+                        data.addColumn('number', coinList[i]);
+//                        temp[coinList[i]] = 0;
+//
+//                        for(let j = 0; j < chartData.length; j++){
+//
+//                            if(chartData[j][coinList[i]] !=null){
+//
+//                                temp[coinList[i]]=chartData[j][coinList[i]];
+//                                break;
+//                            }
+//                        }
+                    }
 
                     var mydata=new Array()
-
-                    let temptime = 0;
-                    let tempbtc = 0;
-                    let tempusd = 0;
-                    let tempusdt = 0;
-
-
-                    for(let i = 0; i < chartData.length; i++){
-
-                        if(chartData[i].btc !=null){
-
-                            tempbtc=chartData[i].btc;
-                            break;
-                        }
-                    }
-                    for(let i = 0; i < chartData.length; i++){
-
-                        if(chartData[i].usd !=null){
-
-                            tempusd=chartData[i].usd;
-                            break;
-                        }
-                    }
-                    for(let i = 0; i < chartData.length; i++){
-
-                        if(chartData[i].usdt !=null){
-
-                            tempusdt=chartData[i].usdt;
-                            break;
-                        }
-                    }
 
 
                     for(let i = 0; i < chartData.length; i++){
 
                         mydata[i] = new Array();
 
-
-//                        if(chartData[i]._id <= temptime){
-//
-//                            continue;
-//
-//                        }
-//                        temptime = chartData[i]._id;
                         mydata[i][0]= new Date(chartData[i]._id);
-                        if(chartData[i].btc !=null){
 
-                            mydata[i][1]=chartData[i].btc;
-                            tempbtc = mydata[i][1]
-                        }else{
-                            mydata[i][1]=tempbtc;
+                        for(let j = 0; j < coinList.length; j++){
 
-                        }
+                            //如果存在 则赋值
+                            if(chartData[i][coinList[j]] !=null){
 
-                        if(chartData[i].usd !=null){
+                                mydata[i][j+1]=parseFloat(chartData[i][coinList[j]]) ;
+                                temp[coinList[j]] = mydata[i][j+1]
+                            }//如果temp之前有被赋值过
+                            else if(temp[coinList[j]] != null){
 
-                            mydata[i][2]=chartData[i].usd;
-                            tempusd = mydata[i][2];
-                        }else {
-                            mydata[i][2] = tempusd;
-                        }
-                        if(chartData[i].usdt !=null){
-
-                            mydata[i][3]=chartData[i].usdt;
-                            tempusdt = mydata[i][3];
-                        }else {
-                            mydata[i][3] = tempusdt;
-                        }
-                    }
-
-                    console.log(mydata);
-                    data.addRows(mydata);
-
-
-                    var materialOptions = {
-                        chart: {
-                            title: 'Average Temperatures and Daylight in Iceland Throughout the Year'
-                        },
-                        width: 900,
-                        height: 500,
-                        series: {
-                            // Gives each series an axis name that matches the Y-axis below.
-                            0: {axis: 'Temps'},
-                            1: {axis: 'Daylight'}
-                        },
-                        axes: {
-                            // Adds labels to each axis; they don't have to match the axis names.
-                            y: {
-                                Temps: {label: 'Temps (Celsius)'},
-                                Daylight: {label: 'Daylight'}
+                                mydata[i][j+1]=temp[coinList[j]];
+                            }//如果temp为null
+                            else{
+                                mydata[i][j+1] = null;
                             }
                         }
-                    };
-
-                    var classicOptions = {
-                        title: timeType + " Mul Coin Chart",
-                        width: 1400,
-                        height: 800,
-                        // Gives each series an axis that matches the vAxes number below.
-                        series: {
-                            0: {targetAxisIndex: 0},
-                            1: {targetAxisIndex: 1},
-                            2: {targetAxisIndex: 1}
-                        },
-                        vAxes: {
-                            // Adds titles to each axis.
-                            0: {title: 'BTC'},
-                            1: {title: 'USD'},
-                            2: {title: 'USDT'}
-                        },
-//                        curveType: 'function',
-//                        legend: { position: 'bottom' }
-                    };
-
-                    function drawMaterialChart() {
-                        var materialChart = new google.charts.Line(chartDiv);
-                        materialChart.draw(data, materialOptions);
-//                        button.innerText = 'Change to Classic';
-//                        button.onclick = drawClassicChart;
                     }
 
+                    data.addRows(mydata);
+
+                    let title = " ";
+                    let series = {};
+                    let vaxes = {};
+
+                    for(let i = 0; i < coinList.length; i ++){
+                        title = title + " " + coinList[i];
+                        series[i] = {targetAxisIndex: targetAxisIndex[i]};
+                        vaxes[i] = {title: coinList[i]};
+                    }
+
+                    let classicOptions = {
+                        title: timeType + title,
+                        width: chartWidth,
+                        height: chartHight,
+                        series:series,
+                        vAxes: vaxes,
+                    };
+
                     function drawClassicChart() {
-                        var classicChart = new google.visualization.LineChart(chartDiv);
+                        let classicChart = new google.visualization.LineChart(chartDiv);
                         classicChart.draw(data, classicOptions);
-//                        button.innerText = 'Change to Material';
-//                        button.onclick = drawMaterialChart;
                     }
 
                     drawClassicChart();
 
                 }
-                setTimeout(update, 1000 * updateTime[timeType]);
+//                setTimeout(update, 1000 * updateTime[timeType]);
             });
         }
+        function js_yyyy_mm_dd_hh_mm_ss (date) {
+            let now = date;
+            let year = "" + now.getFullYear();
+            let month = "" + (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+            let day = "" + now.getDate(); if (day.length == 1) { day = "0" + day; }
+            let hour = "" + now.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+            let minute = "" + now.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+            let second = "" + now.getSeconds(); if (second.length == 1) { second = "0" + second; }
+            return year + "-" + month + "-" + day + "T" + hour + ":" + minute + ":" + second;
+        }
         $(document).ready(function(){
+
+           let date = new Date();
+            document.getElementById("DateEnd").value = js_yyyy_mm_dd_hh_mm_ss(date);
+            date =new Date(date.valueOf() - 1000*60 *60*24) ;
+            document.getElementById("DateStart").value = js_yyyy_mm_dd_hh_mm_ss(date);
+
             document.getElementById('second').onclick = function () {timeType = "second"; update();};
             document.getElementById('halfMinute').onclick = function () {timeType = "halfMinute"; update();};
             document.getElementById('minute').onclick = function () {timeType = "minute"; update();};
@@ -180,6 +145,9 @@
     </script>
 </head>
 <body>
+<input type="datetime-local" value="2018-04-24T13:59:59" id = "DateStart"/>
+<input type="datetime-local" value="2015-09-24T13:59:59" id = "DateEnd"/>
+
 <button id="second">second</button>
 <button id="halfMinute">halfMinute</button>
 <button id="minute">minute</button>
@@ -188,6 +156,8 @@
 <button id="halfHour">halfHour</button>
 <button id="hour">hour</button>
 
-<div id="chart_div" style="width: 900px; height: 500px"></div>
+<div id="chart_top" style="width: 1000px; height: 300px"></div>
+<div id="chart_mid" style="width: 1000px; height: 300px "></div>
+<!--<div id="chart_bottom" style="width: 900px; height: 500px"></div>-->
 </body>
 </html>
