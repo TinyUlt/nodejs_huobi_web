@@ -49,10 +49,11 @@ module.exports = (function(){
             var requestUrl = request.url;
             var pathName = url.parse(requestUrl).pathname;
             var postData = url.parse(request.url, true).query;
-            console.log(postData)
+            // console.log(postData)
             //对请求的路径进行解码，防止中文乱码
             pathName = decodeURI(pathName);
 
+            console.log(pathName);
             // //如果路径中没有扩展名
             // if(path.extname(pathName) === ''){
             //     //如果不是以/结尾的，加/并作301重定向

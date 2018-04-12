@@ -36,10 +36,13 @@ function one (pathName, data, response) {
     var hasExt = true;
     // //获取资源文件的相对路径
     // var filePath = path.join("http/webroot","index.html");
+    console.log("aaaaaaaa");
     //如果路径中没有扩展名
     if(path.extname(pathName) === ''){
+        console.log("bbbbbbb");
         //如果不是以/结尾的，加/并作301重定向
         if (pathName.charAt(pathName.length-1) != "/"){
+            console.log("ccccccc");
             pathName += "/";
             var redirect = "http://"+request.headers.host + pathName;
             response.writeHead(301, {
@@ -52,15 +55,18 @@ function one (pathName, data, response) {
         pathName += "index.html";
         hasExt = false; //标记默认页面是程序自动添加的
     }
+    console.log("dddddd");
     //获取资源文件的相对路径
     var filePath = path.join("http/webroot",pathName);
-
+    console.log(filePath);
     //获取对应文件的文档类型
     var contentType = getContentType(filePath);
 
     //如果文件名存在
     fs.exists(filePath,function(exists){
+        console.log("eeeeee");
         if(exists){
+            console.log("fffffff");
             response.writeHead(200, {"content-type":contentType});
             var stream = fs.createReadStream(filePath,{flags:"r",encoding:null});
             stream.on("error", function() {
@@ -70,11 +76,14 @@ function one (pathName, data, response) {
             //返回文件内容
             stream.pipe(response);
         }else { //文件名不存在的情况
+            console.log("gggggggg");
             if(hasExt){
+                console.log("hhhhhh");
                 //如果这个文件不是程序自动添加的，直接返回404
                 response.writeHead(404, {"content-type": "text/html"});
                 response.end("<h1>404 Not Found</h1>");
             }else {
+                console.log("iiiii");
                 //如果文件是程序自动添加的且不存在，则表示用户希望访问的是该目录下的文件列表
                 var html = "<head><meta charset='utf-8'></head>";
 
@@ -133,7 +142,6 @@ function find(pathName,data, response){
     dbase.collection("g"). find({_id:{$gte:startTime,$lte:endTime}, [pathName]:1 }).project({_id:1, btc:1, usd:1, usdt:1,usdtbuy:1, btcminamount:1,btcminvol:1, btcmincount:1 }).sort({_id:1}).toArray(function(err, result) { // 返回集合中所有数据
         if (err) throw err;
 
-        console.log(result);
         response.writeHead(200, {"Content-Type": "text/plain"});
         response.write(JSON.stringify(result));
         response.end();

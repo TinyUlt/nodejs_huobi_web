@@ -6,7 +6,7 @@ var handle = {};
 handle["/"] = requestHandlers.one;
 handle["/loader.js"] = requestHandlers.one;
 handle["/jquery.min.js"] = requestHandlers.one;
-
+handle["/jquery-1.4.2.min.js"] = requestHandlers.one;
 handle["/second"] = requestHandlers.getData;
 handle["/halfMinute"] = requestHandlers.getData;
 handle["/minute"] = requestHandlers.getData;
