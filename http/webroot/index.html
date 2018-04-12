@@ -14,6 +14,7 @@
         updateTime["tenMinute"] = 60 * 10;
         updateTime["halfHour"] = 60 * 30;
         updateTime["hour"] = 60 * 60;
+//        console.log((new Date()).valueOf());
         function update(){
 
             let startTime =parseInt((new Date(document.getElementById("DateStart").value)).valueOf()) ;
@@ -28,18 +29,22 @@
                 google.charts.load('current', {'packages':['line', 'corechart']});
                 google.charts.setOnLoadCallback(drawTopChart);
                 google.charts.setOnLoadCallback(drawMidChart);
+                google.charts.setOnLoadCallback(drawBotChart);
 
                 function drawTopChart(){
-                    drawChart(["btc","btcamount"],[0,1],'chart_top',1000, 300);
+                    drawChart(["btc","btcamount"],[0,1],'chart_top',1000, 250);
                 }
                 function drawMidChart(){
-                    drawChart(["usd","usdt","usdtbuy"],[0,1,1],'chart_mid',1000, 300 );
+                    drawChart(["btcmincount", "btcminamount","btcminvol"],[0,1,2],'chart_mid',1000, 250 );
+                }
+                function drawBotChart(){
+                    drawChart(["usd","usdt","usdtbuy"],[0,1,1],'chart_bot',1000, 250 );
                 }
                 function drawChart(coinList,targetAxisIndex, elementId,chartWidth, chartHight) {
 
-                    var chartDiv = document.getElementById(elementId);
+                    let chartDiv = document.getElementById(elementId);
 
-                    var data = new google.visualization.DataTable();
+                    let data = new google.visualization.DataTable();
                     data.addColumn('datetime', 'Time');
 
                     let temp = {};
@@ -57,7 +62,7 @@
 //                        }
                     }
 
-                    var mydata=new Array()
+                    let mydata=new Array();
 
 
                     for(let i = 0; i < chartData.length; i++){
@@ -127,10 +132,11 @@
         }
         $(document).ready(function(){
 
-           let date = new Date();
-            document.getElementById("DateEnd").value = js_yyyy_mm_dd_hh_mm_ss(date);
-            date =new Date(date.valueOf() - 1000*60 *60*24) ;
-            document.getElementById("DateStart").value = js_yyyy_mm_dd_hh_mm_ss(date);
+           let nowdate =new Date() ;
+            nextdate = new Date(nowdate.valueOf() + 1000*60*60*24) ;
+            document.getElementById("DateEnd").value = js_yyyy_mm_dd_hh_mm_ss(nextdate);
+            predate =new Date(nowdate.valueOf() - 1000*60*60*2) ;
+            document.getElementById("DateStart").value = js_yyyy_mm_dd_hh_mm_ss(predate);
 
             document.getElementById('second').onclick = function () {timeType = "second"; update();};
             document.getElementById('halfMinute').onclick = function () {timeType = "halfMinute"; update();};
@@ -156,8 +162,9 @@
 <button id="halfHour">halfHour</button>
 <button id="hour">hour</button>
 
-<div id="chart_top" style="width: 1000px; height: 300px"></div>
-<div id="chart_mid" style="width: 1000px; height: 300px "></div>
+<div id="chart_top" style="width: 1000px; height: 250px"></div>
+<div id="chart_mid" style="width: 1000px; height: 250px "></div>
+<div id="chart_bot" style="width: 1000px; height: 250px "></div>
 <!--<div id="chart_bottom" style="width: 900px; height: 500px"></div>-->
 </body>
 </html>

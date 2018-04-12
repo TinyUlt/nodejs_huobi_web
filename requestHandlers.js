@@ -130,7 +130,7 @@ function find(pathName,data, response){
     var query = {};
     let startTime =parseInt(data.startTime);
     let endTime =parseInt( data.endTime);
-    dbase.collection("g"). find({_id:{$gte:startTime,$lte:endTime}, [pathName]:1 }).project({_id:1, btc:1, usd:1, usdt:1,usdtbuy:1, btcamount:1}).sort({_id:1}).toArray(function(err, result) { // 返回集合中所有数据
+    dbase.collection("g"). find({_id:{$gte:startTime,$lte:endTime}, [pathName]:1 }).project({_id:1, btc:1, usd:1, usdt:1,usdtbuy:1, btcminamount:1,btcminvol:1, btcmincount:1 }).sort({_id:1}).toArray(function(err, result) { // 返回集合中所有数据
         if (err) throw err;
 
         console.log(result);
