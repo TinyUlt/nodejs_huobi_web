@@ -16,9 +16,8 @@
         updateTime["tenMinute"] = 60 * 10;
         updateTime["halfHour"] = 60 * 30;
         updateTime["hour"] = 60 * 60;
-//        console.log((new Date()).valueOf());
-        function update(){
 
+        function update(){
             let startTime =parseInt((new Date(document.getElementById("DateStart").value)).valueOf()) ;
             let endTime = parseInt((new Date(document.getElementById("DateEnd").value)).valueOf());
 
@@ -137,7 +136,8 @@
            let nowdate =new Date() ;
             nextdate = new Date(nowdate.valueOf() + 1000*60*60*24) ;
             document.getElementById("DateEnd").value = js_yyyy_mm_dd_hh_mm_ss(nextdate);
-            predate =new Date(nowdate.valueOf() - 1000*60*60*2) ;
+            predate =new Date(1523497150863 - 10) ;
+//            predate =new Date(nowdate.valueOf() - 1000*60*60*2) ;
             document.getElementById("DateStart").value = js_yyyy_mm_dd_hh_mm_ss(predate);
 
             document.getElementById('second').onclick = function () {timeType = "second"; update();};

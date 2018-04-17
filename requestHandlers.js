@@ -108,7 +108,6 @@ function one (pathName, data, response) {
 }
 
 const moment = require('moment');
-const Promise = require('bluebird');
 
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');

@@ -79,7 +79,7 @@ module.exports = (function(){
 
         ///配置信息
         config:{
-            port:80,
+            port:8888,
             ip:'127.0.0.1'
 
         }
